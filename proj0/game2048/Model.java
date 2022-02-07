@@ -96,7 +96,7 @@ public class Model extends Observable {
         setChanged();
     }
 
-    public boolean column(int x) {
+    private boolean column(int x) {
         //int temp=0;
         boolean change=false;
         boolean merged=false;
@@ -123,7 +123,7 @@ public class Model extends Observable {
     }
 
     //find simultaneously next_y at once and move vs find sequentially
-    public int moving_to(int x,int y,Tile t,boolean merged) {
+    private int moving_to(int x,int y,Tile t,boolean merged) {
         int temp=y;
 
         while(temp+1<board.size() ) {
