@@ -5,9 +5,10 @@ import org.junit.Test;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-//nextFirst is the index to put item when Addifrst called,
-// nextLast is same but when addlast called
+//nextFirst is the index to put item when Addifrst called but think of it as moving anti-clockwise(similar to left in LL)
+// nextLast is same but when addlast called but think of it as moving clockwise(similar to right in LL)
 //size means how many items are stored, not the capacity
+//Iffactor is increasing factor and Dfactor is decreasing factor for reSize
 public class ArrayDeque<T> implements Deque<T>,Iterable<T> {
     private ArrayList<T> array;
     private int size=0;
@@ -16,28 +17,36 @@ public class ArrayDeque<T> implements Deque<T>,Iterable<T> {
     private static int Ifactor=2;
     private static double Dfactor=0.25;
 
+    //since this works similar to LLD, just initilaize first,last as 0 not 0/7
     public ArrayDeque() {
         array=new ArrayList<T>(8);
+        nextFirst=0;
+        nextLast=0;
+        //nextLast=array.size()-1;
     }
     @Override
     /** Adds an item to the front of the list. */
+    //if there is no item, must change both first and last
     public void addFirst(T x) {
         if(isFull()) array=reSize(Ifactor*array.size());
 
         array.add(nextFirst,x);
         size++;
-        nextFirst=(nextFirst-1+array.size())% array.size();
+        change_nextFirst();
+        if(size==1) change_nextLast();
 
         return;
     }
 
     @Override
+    //if there is no item, must change both first and last
     public void addLast(T x) {
         if(isFull()) array=reSize(Ifactor*array.size());
 
         array.add(nextLast,x);
         size++;
-        nextLast=(nextLast+1+array.size())% array.size();
+        change_nextLast();
+        if(size==1) change_nextFirst();
 
         return;
     }
@@ -45,19 +54,7 @@ public class ArrayDeque<T> implements Deque<T>,Iterable<T> {
     public boolean isFull() {
         return size==array.size();
     }
-    //copy items on same index as before, taking to change nextFirst and nextLast off our hands
-    //this approach is nice when increasing,but impossible when decreasing
-    public ArrayList<T> reSize(int length) {
-        ArrayList<T> temp=array;
-        array=new ArrayList<T>(length);
-        System.arraycopy(temp,0,array,0,temp.size());
-        //size=length;
-        //0-1=size-1(mod size)
-        nextFirst=array.size()-1;
-        nextLast=size;
 
-        return array;
-    }
     @Override
     public int size() {
         return size;
@@ -70,33 +67,37 @@ public class ArrayDeque<T> implements Deque<T>,Iterable<T> {
 
     @Override
     public void printDeque() {
-        for(int i=(nextFirst+1)% array.size();i<(nextLast-1+ array.size())% array.size();i++) {
+        int start=index_of_first();
+
+        for(int i=start;i!=nextLast;i=(i+1)%ArraySize()) {
             System.out.println(array.get(i));
         }
     }
 
     @Override
     public T removeFirst() {
-        if(size-1<Dfactor*array.size()) array=reSize((int)(Dfactor*array.size())+1);
-        nextFirst=array.size()-1;
-        nextLast=size;
+        if(size==0) return null;
 
-        int index=(nextFirst+1)%array.size();
+        if(size-1<Dfactor*array.size()) array=reSize((int)(Dfactor*array.size())+1);
+
+        int index=index_of_first();
         T d=array.get(index);
         size--;
+        nextFirst=index;
 
         return d;
     }
 
     @Override
     public T removeLast() {
-        if(size-1<Dfactor*array.size()) array=reSize((int)(Dfactor*array.size())+1);
-        nextFirst=array.size()-1;
-        nextLast=size;
+        if(size==0) return null;
 
-        int index=(nextLast-1+array.size())%array.size();
+        if(size-1<Dfactor*array.size()) array=reSize((int)(Dfactor*array.size())+1);
+
+        int index=index_of_last();
         T d=array.get(index);
         size--;
+        nextLast=index;
 
         return d;
     }
@@ -168,12 +169,49 @@ public class ArrayDeque<T> implements Deque<T>,Iterable<T> {
         return same;
     }
 
+    //copy items on same index as before, taking to change nextFirst and nextLast off our hands
+    //this approach is not possible of both decreasing and increasing
+    //so just copy from 0
+    public ArrayList<T> reSize(int length) {
+        ArrayList<T> temp=array;
+        array=new ArrayList<T>(length);
+        System.arraycopy(temp,0,array,0,temp.size());
+        //size=length;
+        //0-1=size-1(mod size)
+        nextFirst=array.size()-1;
+        nextLast=size;
+
+        return array;
+    }
+
     public boolean contains(T item) {
         for(int i=0;i<size;i++) {
             if(get(i)!=item) return false; //get.class=item.class
         }
 
         return true;
+    }
+
+    //index of first item
+    public int index_of_first() {
+        return (nextFirst+1)%ArraySize();
+    }
+
+    //index of last item
+    public int index_of_last() {
+        return (nextLast-1+ArraySize())%ArraySize();
+    }
+
+    public void change_nextFirst() {
+        nextFirst=(nextFirst-1+array.size())% ArraySize();
+    }
+
+    public void change_nextLast() {
+        nextLast=(nextLast+1)% ArraySize();
+    }
+
+    public int ArraySize() {
+        return array.size();
     }
 
 
