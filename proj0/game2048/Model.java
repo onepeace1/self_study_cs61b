@@ -1,3 +1,5 @@
+
+
 package game2048;
 
 import java.util.Formatter;
@@ -94,6 +96,7 @@ public class Model extends Observable {
         setChanged();
     }
 
+<<<<<<< HEAD
     public boolean column(int x) {
         //int temp=0;
         boolean change=false;
@@ -111,12 +114,46 @@ public class Model extends Observable {
     }
 
     public int moving_to(int x,int y,Tile t) {
+=======
+    private boolean column(int x) {
+        //int temp=0;
+        boolean change=false;
+        boolean merged=false;
+
+        //make another method column(x,y,merged)?
+        for(int y=board.size()-1;y>=0;y--) {
+
+            Tile t = board.tile(x, y); //not value()
+            if(t==null) continue;
+
+            //even if it doen't move, just give its index
+            int next_y = moving_to(x,y,t,merged);
+            if(next_y!=y) change=true;
+
+            if (board.move(x, next_y, t)) {
+                score += board.tile(x, next_y).value();
+                merged=true;
+            }
+            else merged=false;
+        }
+
+        System.out.println(change);
+        return change;
+    }
+
+    //find simultaneously next_y at once and move vs find sequentially
+    private int moving_to(int x,int y,Tile t,boolean merged) {
+>>>>>>> d19c8f454e042e9dff34178e6712b024d3dbcf13
         int temp=y;
 
         while(temp+1<board.size() ) {
 
             if (board.tile(x, temp + 1) != null) {
+<<<<<<< HEAD
                 if (board.tile(x, temp + 1).value() == t.value()) {
+=======
+                if (board.tile(x, temp + 1).value() == t.value() && merged==false) {
+>>>>>>> d19c8f454e042e9dff34178e6712b024d3dbcf13
                     temp++;
 
                 }
@@ -125,7 +162,11 @@ public class Model extends Observable {
 
             else temp++;
         }
+<<<<<<< HEAD
 
+=======
+        System.out.println(temp);
+>>>>>>> d19c8f454e042e9dff34178e6712b024d3dbcf13
         return temp;
     }
     /** Tilt the board toward SIDE. Return true iff this changes the board.
@@ -147,14 +188,25 @@ public class Model extends Observable {
         // TODO: Modify this.board (and perhaps this.score) to account
         // for the tilt to the Side SIDE. If the board changed, set the
         // changed local variable to true.
+<<<<<<< HEAD
         for(int x=0;x<board.size();x++) {
            // score+=column(x);
             changed=column(x);
+=======
+
+        board.setViewingPerspective(side);
+        for(int x=0;x<board.size();x++) {
+            // score+=column(x);
+            boolean temp=column(x);
+            if(temp) changed=temp;
+>>>>>>> d19c8f454e042e9dff34178e6712b024d3dbcf13
         }
         checkGameOver();
         if (changed) {
             setChanged();
         }
+
+        board.setViewingPerspective(Side.NORTH);
         return changed;
     }
 
@@ -224,7 +276,7 @@ public class Model extends Observable {
 
 
     @Override
-     /** Returns the model as a string, used for debugging. */
+    /** Returns the model as a string, used for debugging. */
     public String toString() {
         Formatter out = new Formatter();
         out.format("%n[%n");
