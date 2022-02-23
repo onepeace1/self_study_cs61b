@@ -2,6 +2,7 @@ package deque;
 
 import org.junit.Test;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Iterator;
 
@@ -10,30 +11,29 @@ import java.util.Iterator;
 //size means how many items are stored, not the capacity
 //Iffactor is increasing factor and Dfactor is decreasing factor for reSize
 public class ArrayDeque<T> implements Deque<T>,Iterable<T> {
-    private ArrayList<T> array;
+    private T[] array;
     private int size=0;
     private int nextFirst=0;
     private int nextLast=0;
     private static int Ifactor=2;
     private static double Dfactor=0.25;
-
-    //since this works similar to LLD, just initilaize first,last as 0 not 0/7
+    private static final int DEFAULT_SIZE=8;
+    //nextlast-nextFirst must be 1(or nextFirst=7, nextLast=0) since
     public ArrayDeque() {
-        array=new ArrayList<T>(8);
+        array=(T[]) new Object[DEFAULT_SIZE];
         nextFirst=0;
-        nextLast=0;
-        //nextLast=array.size()-1;
+        nextLast=1;
+        //nextLast=array.length-1;
     }
     @Override
     /** Adds an item to the front of the list. */
     //if there is no item, must change both first and last
     public void addFirst(T x) {
-        if(isFull()) array=reSize(Ifactor*array.size());
+        if(isFull()) array=reSize(Ifactor*array.length);
 
-        array.add(nextFirst,x);
+        array[nextFirst]=x;
         size++;
         change_nextFirst();
-        if(size==1) change_nextLast();
 
         return;
     }
@@ -41,18 +41,17 @@ public class ArrayDeque<T> implements Deque<T>,Iterable<T> {
     @Override
     //if there is no item, must change both first and last
     public void addLast(T x) {
-        if(isFull()) array=reSize(Ifactor*array.size());
+        if(isFull()) array=reSize(Ifactor*array.length);
 
-        array.add(nextLast,x);
+        array[nextLast]=x;
         size++;
         change_nextLast();
-        if(size==1) change_nextFirst();
 
         return;
     }
 
     public boolean isFull() {
-        return size==array.size();
+        return size==array.length;
     }
 
     @Override
@@ -69,8 +68,9 @@ public class ArrayDeque<T> implements Deque<T>,Iterable<T> {
     public void printDeque() {
         int start=index_of_first();
 
-        for(int i=start;i!=nextLast;i=(i+1)%ArraySize()) {
-            System.out.println(array.get(i));
+       // for(int i=start;i!=nextLast;i=(i+1)%ArraySize()) {
+        for(int i=0;i<size;i++) {
+            System.out.println(array[i+start]);
         }
     }
 
@@ -78,10 +78,10 @@ public class ArrayDeque<T> implements Deque<T>,Iterable<T> {
     public T removeFirst() {
         if(size==0) return null;
 
-        if(size-1<Dfactor*array.size()) array=reSize((int)(Dfactor*array.size())+1);
+        if(size-1<Dfactor*array.length) array=reSize((int)(2*Dfactor*array.length)+1);
 
         int index=index_of_first();
-        T d=array.get(index);
+        T d=array[index];
         size--;
         nextFirst=index;
 
@@ -92,10 +92,10 @@ public class ArrayDeque<T> implements Deque<T>,Iterable<T> {
     public T removeLast() {
         if(size==0) return null;
 
-        if(size-1<Dfactor*array.size()) array=reSize((int)(Dfactor*array.size())+1);
+        if(size-1<Dfactor*array.length) array=reSize((int)(2*Dfactor*array.length)+1);
 
         int index=index_of_last();
-        T d=array.get(index);
+        T d=array[index];
         size--;
         nextLast=index;
 
@@ -106,10 +106,9 @@ public class ArrayDeque<T> implements Deque<T>,Iterable<T> {
     //if not change to real_index, there might be error in equal or other method that uses this method
     public T get(int index) {
 
-        if((index-nextFirst)<=Math.abs(nextLast-nextFirst)) return null;
-
-        int real_index=(index+nextFirst+1)%array.size();
-        return array.get(real_index);
+        if(index>=size) return null;
+        int real_index=(index+nextFirst+1)%array.length;
+        return array[real_index];
     }
 
     @Override
@@ -118,7 +117,7 @@ public class ArrayDeque<T> implements Deque<T>,Iterable<T> {
     }
 
     public class ADeque<T> implements Iterator<T> {
-        //private ArrayList<T> ref;
+        //private T[] ref;
         private int index=nextFirst;
         public ADeque() {
             index=nextFirst;
@@ -126,13 +125,13 @@ public class ArrayDeque<T> implements Deque<T>,Iterable<T> {
 
         @Override
         public boolean hasNext() {
-            if ((index+1)%array.size()!=nextLast) return true;
+            if ((index+1)%array.length!=nextLast) return true;
             return false;
         }
 
         @Override
         public T next() {
-            index=(index+1)%array.size();
+            index=(index+1)%array.length;
             return (T) get(index);
         }
 
@@ -171,19 +170,32 @@ public class ArrayDeque<T> implements Deque<T>,Iterable<T> {
 
     //copy items on same index as before, taking to change nextFirst and nextLast off our hands
     //this approach is not possible of both decreasing and increasing
-    //so just copy from 0
-    public ArrayList<T> reSize(int length) {
-        ArrayList<T> temp=array;
-        array=new ArrayList<T>(length);
-        System.arraycopy(temp,0,array,0,temp.size());
+    //so just copy from 0->using arrayCopy copies jus by index,not real_index
+    public T[] reSize(int length) {
+
+        array=myArrayCopy(length);
+       // System.arraycopy(temp,0,array,0,temp.length);
         //size=length;
         //0-1=size-1(mod size)
-        nextFirst=array.size()-1;
+        nextFirst=array.length-1;
         nextLast=size;
 
         return array;
     }
 
+    public T[] myArrayCopy(int length) {
+        T[] temp=array;
+        int start=index_of_first();
+
+        array=(T[]) new Object[length];
+
+        for(int i=0;i<size;i++) {
+
+            array[i]=temp[(i+start)% temp.length];
+        }
+
+        return array;
+    }
     public boolean contains(T item) {
         for(int i=0;i<size;i++) {
             if(get(i)!=item) return false; //get.class=item.class
@@ -203,7 +215,7 @@ public class ArrayDeque<T> implements Deque<T>,Iterable<T> {
     }
 
     public void change_nextFirst() {
-        nextFirst=(nextFirst-1+array.size())% ArraySize();
+        nextFirst=(nextFirst-1+array.length)% ArraySize();
     }
 
     public void change_nextLast() {
@@ -211,7 +223,7 @@ public class ArrayDeque<T> implements Deque<T>,Iterable<T> {
     }
 
     public int ArraySize() {
-        return array.size();
+        return array.length;
     }
 
 
