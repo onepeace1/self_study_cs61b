@@ -47,7 +47,7 @@ class Utils {
         return new String(readContents(file), StandardCharsets.UTF_8);
     }
 
-    /** Write the result of concatenating the bytes in CONTENTS to FILE,
+    /** Write the result of concatenating the bytes or string in CONTENTS to FILE,
      *  creating or overwriting it as needed.  Each object in CONTENTS may be
      *  either a String or a byte array.  Throws IllegalArgumentException
      *  in case of problems. */
@@ -59,7 +59,7 @@ class Utils {
             }
             BufferedOutputStream str =
                     new BufferedOutputStream(Files.newOutputStream(file.toPath()));
-            for (Object obj : contents) {
+            for (Object obj :contents) {
                 if (obj instanceof byte[]) {
                     str.write((byte[]) obj);
                 } else {
@@ -97,14 +97,14 @@ class Utils {
     /* OTHER FILE UTILITIES */
 
     /** Return the concatentation of FIRST and OTHERS into a File designator,
-     *  analogous to the {@link java.nio.file.Paths.#get(String, String[])}
+     *  analogous to the {@link java.nio.file.Paths#get(String, String[])}
      *  method. */
     static File join(String first, String... others) {
         return Paths.get(first, others).toFile();
     }
 
     /** Return the concatentation of FIRST and OTHERS into a File designator,
-     *  analogous to the {@link java.nio.file.Paths.#get(String, String[])}
+     *  analogous to the {@link java.nio.file.Paths#get(String, String[])}
      *  method. */
     static File join(File first, String... others) {
         return Paths.get(first.getPath(), others).toFile();
