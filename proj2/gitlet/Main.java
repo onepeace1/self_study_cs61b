@@ -10,6 +10,7 @@ public class Main {
      */
     public static void main(String[] args) {
         // TODO: what if args is empty?
+        InputError(args);
         String firstArg = args[0];
         switch(firstArg) {
             case "init":
