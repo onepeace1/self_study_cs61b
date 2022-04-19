@@ -64,7 +64,7 @@ public class Repository {
     public void addFile(String filename) {
         File stage= join(blobs,hash);
         stage.createNewFile();
-        writeContents(stage,filenam);
+        writeContents(stage,filename);
 
     }
 }
