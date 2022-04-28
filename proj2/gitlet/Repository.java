@@ -27,7 +27,7 @@ public class Repository {
     /** The current working directory. */
     public static final File CWD = new File(System.getProperty("user.dir"));
     /** What users actually see on directory, note that inside files are real files not reference **/
-    /** key is hashcode of File **/
+    /** key is name of File not hashcode **/
     private HashMap<String,File> files;
     /** The .gitlet directory. */
     public static final File GITLET_DIR = join(CWD, ".gitlet");
@@ -37,13 +37,14 @@ public class Repository {
     public static final File removal=join(GITLET_DIR,"stage_rm");
     /** Where added files are stored , note that inside blobs are real files not reference **/
     public static final File blobs=join(GITLET_DIR,"blobs");
-    /** Where commits are stored **/
-    public static final File commit=join(GITLET_DIR,"commit");
 
+    /**Do we need to have variables for stage area to store blobs..? I think yes since
+     * when git ends after add, we just store hashmap but during runtime it is fast to have reference
+     * when commit. But can't we search from blobs with )(1))?**/
     /** All should be directory since we need subfiles to distinguish from each ohter **/
-    public void SetupPersistence() {
+    public static void SetupPersistence() {
         GITLET_DIR.mkdir();
-        commit.mkdir();
+        Commit.commit.mkdir();
         blobs.mkdir();
         stage_add.mkdir();
         removal.mkdir();
@@ -60,11 +61,21 @@ public class Repository {
      **/
     }
 
-    /** make new file inside stage_add **/
-    public void addFile(String filename) {
-        File stage= join(blobs,hash);
-        stage.createNewFile();
-        writeContents(stage,filename);
+    /** put files which target commit references to cwd files**/
+    public static void putFiles(String commit_id) {}
+    /** put target file to cwd file, change current file if already exists **/
+    public static void putFile(String blob_filename) {}
+    /** put target file inside target commit_id to cwd file, chnage current file if already exists **/
+    public static void putFile(String blob_filename,String commit_id) {}
+    /** store file reference pointing blob named filename inside stage area **/
+    public static void staged(String filename) {}
+    /** store actual file named filename inside stage area **/
+    public static void make_blobs(String blob_id) {}
+    /** remove file named filename from wherever has its info so that next commit doesn't have info about it **/
+    public static void removal(String filename) {}
+    /** make next commit **/
+    public static void make_commit(String message) {}
 
-    }
+
+    public static void addFile(File )
 }
