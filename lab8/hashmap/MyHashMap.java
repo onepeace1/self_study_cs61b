@@ -1,8 +1,6 @@
 package hashmap;
 
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.Set;
+import java.util.*;
 
 /**
  *  A hash table-backed Map implementation. Provides amortized constant time
@@ -21,15 +19,49 @@ public class MyHashMap<K, V> implements Map61B<K, V> {
 
     @Override
     public boolean containsKey(K key) {
+        int index=calc_hashcode(key);
+        if(containsKey(buckets[index],key)) return true;
+        return false;
+    }
+
+    public int calc_hashcode(K key) {
+        int transform=key.hashCode();
+        transform=(transform%buckets.length);
+        transform=(transform+ buckets.length)%buckets.length;
+
+        return transform;
+
+    }
+
+    public boolean containsKey(Collection<Node> t, K key) {
+        for(Node data:t) {
+            if(data.key==key) return true;
+        }
+
+       // if(t.contains(key)) return true;
 
         return false;
     }
 
     @Override
     public V get(K key) {
+        V data=null;
+        int index=calc_hashcode(key);
+
+        data=get(buckets[index],key);
+        if(data!=null) return data;
+
         return null;
     }
 
+    public V get(Collection<Node> t, K key) {
+        V data;
+        for(Node N:t) {
+            if(N.key==key) return N.value;
+        }
+
+        return null;
+    }
     @Override
     public int size() {
         return Size;
@@ -37,29 +69,70 @@ public class MyHashMap<K, V> implements Map61B<K, V> {
 
     @Override
     public void put(K key, V value) {
+        if(containsKey(key)) return;
 
+        if(buckets.length /Size>=maxLoad) resize();
+
+        int code=key.hashCode();
+        boolean success=buckets[code].add(createNode(key,value));
+
+        if(success) {
+            MySet.add(key);
+            Size++;
+        }
+
+    }
+
+    public void resize() {
+        Collection<Node>[] newbuckets=createTable(multi* buckets.length);
+
+        for(Collection<Node> t:buckets) {
+            for(Node data:t) {
+                int index=calc_hashcode(data.key);  //length change
+
+                if(newbuckets[index].contains(data.key)) continue;
+                newbuckets[index].add(data); // don't need to add key to set
+            }
+        }
+
+        buckets=newbuckets;
     }
 
     @Override
     public Set<K> keySet() {
-        return null;
+        return MySet;
     }
 
     @Override
     public V remove(K key) {
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public V remove(K key, V value) {
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public Iterator<K> iterator() {
-        return null;
+        Set<K> t= (Set<K>) keySet();
+        return t.iterator();
     }
 
+    public class MyHashMapIterator<K>  implements Iterator<K> {
+        Set<K> t= (Set<K>) keySet(); //?
+        Iterator<K> iter=t.iterator();
+
+        @Override
+        public boolean hasNext() {
+            return iter.hasNext();
+        }
+
+        @Override
+        public K next() {
+            return iter.next();
+        }
+    }
     /**
      * Protected helper class to store key/value pairs
      * The protected qualifier allows subclass access
@@ -78,17 +151,20 @@ public class MyHashMap<K, V> implements Map61B<K, V> {
     private Collection<Node>[] buckets;
     private int Size;
     private double maxLoad;
-    // You should probably define some more!
-
+    private HashSet<K> MySet;
+    private final int multi=2;
     /** Constructors */
     public MyHashMap() {
         buckets=null;
+        MySet=null;
         maxLoad=Size=0;
+
     }
 
     public MyHashMap(int initialSize) {
         buckets=createTable(initialSize);
         Size=initialSize;
+        MySet=null;
         maxLoad=0;
     }
 
@@ -103,6 +179,7 @@ public class MyHashMap<K, V> implements Map61B<K, V> {
         buckets=createTable(initialSize);
         Size=initialSize;
         this.maxLoad=maxLoad;
+        MySet=null;
     }
 
     /**
@@ -132,7 +209,8 @@ public class MyHashMap<K, V> implements Map61B<K, V> {
      * @return
      */
     protected Collection<Node> createBucket() {
-        return new Collection<>();
+        Collection<Node> t=null;
+        return t;
     }
 
     /**

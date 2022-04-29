@@ -7,9 +7,28 @@ public class BSTMap<K extends Comparable<K>,V> implements Map61B<K,V> {
 
     @Override
     public Iterator<K> iterator() {
-        return null;
+        return new BSTIterator<K>(this);
     }
 
+    public class BSTIterator<K extends Comparable<K>> implements Iterator<K> {
+        BSTMap<K, V>.BSTNode root;
+
+        public BSTIterator(Map61B<K,V> cur) {
+            BSTMap<K,V> temp=(BSTMap<K,V>) cur;
+            this.root=temp.root;
+        }
+
+        @Override
+        public boolean hasNext() {
+            if(root.left==null && root.right==null) return false;
+            return true;
+        }
+
+        @Override
+        public K next() {
+            return null;
+        }
+    }
 
 
     public class BSTNode  {
@@ -34,10 +53,15 @@ public class BSTMap<K extends Comparable<K>,V> implements Map61B<K,V> {
     public BSTMap() {
         Size=0;
         root=null;
-
-
     }
 
+    public BSTNode getRoot() {
+        return root;
+    }
+
+    public int getSize() {
+        return Size;
+    }
     @Override
     public boolean containsKey(K key) {
         BSTNode  cur=root;
