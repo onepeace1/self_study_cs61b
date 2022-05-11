@@ -12,12 +12,12 @@
 2. Field 2
 
 
-### Class 2
+### objects
 
 #### Fields
 
-1. Field 1
-2. Field 2
+1. parentId
+2. state
 
 
 ## Algorithms
