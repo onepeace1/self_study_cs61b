@@ -11,7 +11,7 @@ import static capers.Utils.*;
 public class Dog implements Serializable{ // TODO
 
     /** Folder that dogs live in. */
-    static final File DOG_FOLDER = Utils.join(CapersRepository.CAPERS_FOLDER,"dog");
+    static final File DOG_FOLDER = Utils.join(CapersRepository.CAPERS_FOLDER,".dog");
 
     /** Age of dog. */
     private int age;
@@ -40,9 +40,7 @@ public class Dog implements Serializable{ // TODO
      */
     public static Dog fromFile(String name) {
         File sub_dog=Utils.join(DOG_FOLDER,name);
-        Dog d=null;
-
-        if(sub_dog.isFile()) d=Utils.readObject(sub_dog,Dog.class);
+        Dog d=Utils.readObject(sub_dog,Dog.class);
         return d;
     }
 
@@ -63,14 +61,6 @@ public class Dog implements Serializable{ // TODO
     //must check whether directory exists(any directory which will include sub_dog
     public void saveDog() {
         File sub_dog=Utils.join(DOG_FOLDER,name);
-
-        try {
-            sub_dog.createNewFile();
-        }
-
-        catch(IOException error) {
-            error.printStackTrace();
-        }
         //don't have to check wether creating file succeed?
         Utils.writeObject(sub_dog, this);
     }

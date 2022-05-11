@@ -56,6 +56,7 @@ public class CapersRepository {
     public static void writeStory(String text) {
         String stored=Utils.readContentsAsString(STORY);
         Utils.writeContents(STORY,stored+text+"\r\n");
+        System.out.println(readContentsAsString(CapersRepository.STORY));
     }
 
     /**
@@ -66,7 +67,7 @@ public class CapersRepository {
     public static void makeDog(String name, String breed, int age) {
         Dog new_dog=new Dog(name,breed,age);
         new_dog.saveDog();
-        // TODO
+        System.out.println(new_dog.toString());
     }
 
     /**
@@ -79,8 +80,9 @@ public class CapersRepository {
         Dog happy=Dog.fromFile(name);
         happy.haveBirthday();
         File current=Utils.join(Dog.DOG_FOLDER,name);
-        Utils.writeObject(current,happy);
-        // TODO
+        //Utils.writeObject(current,happy);
+        happy.saveDog();
+
     }
 
     public static void main(String[] args) throws IOException {
