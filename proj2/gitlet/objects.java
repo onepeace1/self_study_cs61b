@@ -38,6 +38,11 @@ public class objects implements Serializable {
      * variable is used. We've provided one example for `message`.
      */
 
+    /** Same as objects dir inside git. This stores blobs and commits, but not
+     * trees since gitlet doesn't need tree object.
+     */
+    public static final File objects=join(GITLET_DIR,"objects");
+
     private type T;
     /**actual data**/
     private String data;
@@ -90,5 +95,13 @@ public class objects implements Serializable {
         state=new HashMap<>(next);
     }
     /* TODO: fill in the rest of this class. */
+    public void saveObjects() {
+        File newObject=join(objects,sha1(this));
+        writeobject(newObject,this);
+    }
+    public objects fromFile(String filename) {
+        File cur=join(objects,filename);
+        return readobject(cur,objects.class);
+    }
 
 }

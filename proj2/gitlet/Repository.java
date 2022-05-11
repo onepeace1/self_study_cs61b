@@ -39,10 +39,6 @@ public class Repository {
      */
     public static final File Removal=join(GITLET_DIR,"index_rm");
 
-    /** Same as objects dir inside git. This stores blobs and commits, but not
-     * trees since gitlet doesn't need tree object.
-     */
-    public static final File objects=join(GITLET_DIR,"objects");
     /** Same as refs dir inside git. THis stores branches dir(not other things such as
      * tags since gitlet don't need those).
      */
@@ -63,7 +59,7 @@ public class Repository {
     public static void initialize() throws IOException {
         if(GITLET_DIR.isDirectory()) {
             new GitletException("git already exists");
-            return;
+
         }
         GITLET_DIR.mkdir();
         objects.mkdir();
@@ -116,7 +112,7 @@ public class Repository {
 
         return true;
     }
-    /**if different version of file or file is staged as removal, correct those**/
+    /**if different version of file exists in stage area or file is staged as removal, correct those**/
     public static void change_illegally_staged(String filename,String hashcode) {
         objects addMap=readObject(Index,objects.class);
         objects rmMap=readObject(Removal,objects.class);
